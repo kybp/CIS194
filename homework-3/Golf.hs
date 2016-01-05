@@ -26,5 +26,3 @@ histogram ns = foldl (flip (++)) start $ makeRows $ getCounts ns
   where start = "==========\n0123456789\n"
         countN n = fromIntegral . length . filter (== n)
         getCounts xs = map (flip countN xs) [0..9]
-        
-
