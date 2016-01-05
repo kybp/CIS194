@@ -8,7 +8,7 @@ import Parser
 import StackVM
 
 eval :: ExprT -> Integer
-eval (Lit n)   = n
+eval (Lit n)         = n
 eval (ExprT.Add x y) = (eval x) + (eval y)
 eval (ExprT.Mul x y) = (eval x) * (eval y)
 
