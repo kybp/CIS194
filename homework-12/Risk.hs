@@ -3,6 +3,7 @@
 
 module Risk where
 
+import Control.Monad (replicateM)
 import Control.Monad.Random
 import Data.List (partition, sortBy)
 
@@ -45,3 +46,15 @@ battle bf =
   in return $ Battlefield attacking' defending'
   where throws (Battlefield attacking defending) =
           (,) <$> throw (min 3 attacking) <*> throw (min 2 defending)
+
+invade :: Battlefield -> Rand StdGen Battlefield
+invade b@(Battlefield 1 _) = return b
+invade b@(Battlefield _ 0) = return b
+invade bf = battle bf >>= invade
+
+successProb :: Battlefield -> Rand StdGen Double
+successProb bf =
+  replicateM 1000 (invade bf) >>= \results ->
+  let wins  = fromIntegral . length $ filter ((== 0) . defenders) results
+      total = fromIntegral $ length results in
+  return $ wins / total
