@@ -36,16 +36,19 @@ throw n = throw' n >>= return . ascending
         throw' 0  = pure []
         throw' i  = (:) <$> die <*> throw' (i - 1)
 
+throws :: Battlefield -> Rand StdGen ([DieValue],[DieValue])
+throws (Battlefield attacking defending) =
+  (,) <$> throw attacking' <*> throw defending'
+  where attacking' = min (attacking - 1) 3
+        defending' = min defending 2
+
 battle :: Battlefield -> Rand StdGen Battlefield
 battle bf =
   throws bf >>= \(attacking, defending) ->
-  let contests       = zip (take (length defending) attacking) defending
-      (wins, losses) = partition (uncurry (>)) contests
+  let (wins, losses) = partition (uncurry (>)) $ zip attacking defending
       attacking'     = attackers bf - length losses
       defending'     = defenders bf - length wins
   in return $ Battlefield attacking' defending'
-  where throws (Battlefield attacking defending) =
-          (,) <$> throw (min 3 attacking) <*> throw (min 2 defending)
 
 invade :: Battlefield -> Rand StdGen Battlefield
 invade b@(Battlefield 1 _) = return b
